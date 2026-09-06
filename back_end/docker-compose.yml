@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - ${DATA_DIR:-D:/AIPlatform}/chroma:/app/data/chroma
+      - ${DATA_DIR:-D:/AIPlatform}/models/huggingface:/app/data/models/huggingface
+      - ${DATA_DIR:-D:/AIPlatform}/documents:/app/data/documents
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - REDIS_URL=redis://redis:6379/0
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    depends_on:
+      - redis
+
+  celery:
+    build: .
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+      - ${DATA_DIR:-D:/AIPlatform}/chroma:/app/data/chroma
+      - ${DATA_DIR:-D:/AIPlatform}/models/huggingface:/app/data/models/huggingface
+      - ${DATA_DIR:-D:/AIPlatform}/documents:/app/data/documents
+    environment:
+      - DEBUG=True
+      - REDIS_URL=redis://redis:6379/0
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  chroma_data:
+  hf_models:
