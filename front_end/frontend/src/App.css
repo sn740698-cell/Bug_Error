@@ -580,6 +580,27 @@ body {
   border-color: var(--accent-blue);
 }
 
+.typing-cursor {
+  display: inline-block;
+  color: var(--accent-blue);
+  font-weight: bold;
+  animation: blink 0.7s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.streaming-dots {
+  color: var(--accent-blue);
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .empty-placeholder {
   text-align: center;
   padding: 30px;
@@ -598,4 +619,184 @@ body {
   background: rgba(248, 113, 113, 0.15);
   color: #f87171;
   border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+/* Clickable Status Badge & LLM Connection Modal */
+.status-badge.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-badge.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+  border-color: var(--accent-blue);
+}
+
+.llm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(11, 19, 41, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.llm-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 650px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.llm-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+}
+
+.llm-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.close-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.llm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.llm-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.llm-card-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.llm-card-model {
+  font-size: 15px;
+  font-weight: 600;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.llm-card-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  word-break: break-all;
+}
+
+.llm-status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.ollama-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.ollama-tag {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+/* Document Ingestion Dropzone & File Chips */
+.upload-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.file-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.file-chip {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-chip .remove-file-btn {
+  background: transparent;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0 4px;
+  font-size: 14px;
+}
+
+.file-chip .remove-file-btn:hover {
+  color: #ef4444;
 }

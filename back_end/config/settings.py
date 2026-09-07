@@ -1,13 +1,17 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-financial-intelligence-local-dev-key')
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-master-rag-backend-secret-key')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't', 'yes')
+
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '*').split(',') if h.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -18,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'api',
     'apps.documents',
     'apps.workflows_api',
     'apps.health',
@@ -54,12 +59,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Database Configuration with DATABASE_URL or SQLite fallback
+DATABASE_URL = os.getenv('DATABASE_URL', '')
+if DATABASE_URL.startswith('postgresql://') or DATABASE_URL.startswith('postgres://'):
+    import urllib.parse
+    url = urllib.parse.urlparse(DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = []
 
@@ -71,13 +92,23 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Media Storage Configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+
+# CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(',') if origin.strip()
+]
 
-# Platform Data & AI Model Storage Paths
+# Platform Data & ChromaDB Vector Store Paths
 DATA_DIR = os.getenv('DATA_DIR', str(BASE_DIR / 'data'))
 DOCUMENTS_DIR = Path(DATA_DIR) / 'documents'
 CHROMA_PERSIST_DIR = os.getenv('CHROMA_PERSIST_DIR', str(BASE_DIR / 'data' / 'chroma'))
+CHROMA_COLLECTION_NAME = os.getenv('CHROMA_COLLECTION_NAME', 'user_knowledge_base')
 HF_HOME = os.getenv('HF_HOME', str(BASE_DIR / 'data' / 'models' / 'huggingface'))
 
 # Ensure directories exist
@@ -92,14 +123,32 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-# AI Model Configuration
+# Multi-LLM Provider & Model Configurations
+EMBEDDING_PROVIDER = os.getenv('EMBEDDING_PROVIDER', 'ollama')
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')
+
+LLM_A_PROVIDER = os.getenv('LLM_A_PROVIDER', 'ollama')
+LLM_A_MODEL = os.getenv('LLM_A_MODEL', 'hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0')
+
+LLM_B_PROVIDER = os.getenv('LLM_B_PROVIDER', 'ollama')
+LLM_B_MODEL = os.getenv('LLM_B_MODEL', 'hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0')
+
+EVALUATOR_PROVIDER = os.getenv('EVALUATOR_PROVIDER', 'ollama')
+EVALUATOR_MODEL = os.getenv('EVALUATOR_MODEL', 'hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0')
+
+# Ollama local settings
 OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
 OLLAMA_LLAMA_MODEL = os.getenv('OLLAMA_LLAMA_MODEL', 'hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0')
-OLLAMA_QWEN_MODEL = os.getenv('OLLAMA_QWEN_MODEL', 'hf.co/nulledinstance/Qwen2.5-1B-Instruct-Q8_0-GGUF:Q8_0')
+OLLAMA_QWEN_MODEL = os.getenv('OLLAMA_QWEN_MODEL', 'hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0')
 DEFAULT_LLM = os.getenv('DEFAULT_LLM', 'llama')
 
+# RAG & Graph Retries thresholds
+CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', 1000))
+CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', 150))
 TOP_K = int(os.getenv('TOP_K', 5))
 SIMILARITY_THRESHOLD = float(os.getenv('SIMILARITY_THRESHOLD', 0.70))
+MAX_RETRIES = int(os.getenv('MAX_RETRIES', 2))
 MAX_WORKFLOW_ITERATIONS = int(os.getenv('MAX_WORKFLOW_ITERATIONS', 10))
 MAX_DRAFT_RETRIES = int(os.getenv('MAX_DRAFT_RETRIES', 2))
 MAX_RETRIEVAL_RETRIES = int(os.getenv('MAX_RETRIEVAL_RETRIES', 2))
+

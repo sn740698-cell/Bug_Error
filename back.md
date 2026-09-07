@@ -1,6 +1,6 @@
-# Backend Architecture & System Specification (`back.md`)
+# Backend Architecture & System Upgrades (`back.md`)
 
-This document provides a comprehensive technical specification and architectural breakdown of the **Django REST + LangGraph + Ollama GGUF + ChromaDB** backend for the **J.A.R.V.I.S. Universal Multi-Agent AI Intelligence Platform**.
+This document provides a comprehensive technical specification and architectural breakdown of the **Django 5.x REST + LangGraph 8-Agent StateGraph + Ollama Llama 3.2 1B GGUF + ChromaDB Vector Store** backend for the **J.A.R.V.I.S. Multi-Agent RAG Intelligence Platform**.
 
 ---
 
@@ -9,125 +9,101 @@ This document provides a comprehensive technical specification and architectural
 ```
                       +----------------------------------+
                       |     React Frontend Dashboard     |
+                      |  (Real-Time Streaming + UI Graph)|
                       +----------------------------------+
                                        |
                                        v
                       +----------------------------------+
-                      |       Django REST API Layer      |
-                      |    (apps/workflows_api/views)    |
+                      |      Django 5.x REST API Layer   |
+                      |   POST /api/chat/ (Streaming)    |
+                      |   POST /api/pipeline/run/        |
                       +----------------------------------+
                                        |
-                   +-------------------+-------------------+
-                   |                                       |
-                   v                                       v
-    +------------------------------+       +------------------------------+
-    |   ChromaDB Vector Store      |       |  LangGraph StateGraph        |
-    |   + DistilBERT Re-ranking    |       |  5-Agent Multi-Supervisor    |
-    +------------------------------+       +------------------------------+
-                   |                                       |
-                   +-------------------+-------------------+
+                    +-------------------+-------------------+
+                    |                                       |
+                    v                                       v
+     +------------------------------+       +------------------------------+
+     |   ChromaDB Vector Store      |       |  LangGraph 8-Agent StateGraph|
+     |   (Hybrid Vector + Keyword)  |       |  Parallel Fan-In & Feedback  |
+     +------------------------------+       +------------------------------+
+                    |                                       |
+                    +-------------------+-------------------+
                                        |
                                        v
                       +----------------------------------+
-                      |      Ollama LLMRouter (GGUF)     |
-                      |   Primary: Llama 3.2 1B Instruct |
-                      |   Fallback: Qwen 2.5 1B Instruct |
+                      |      Ollama Local GGUF Engine     |
+                      |   Model: Llama 3.2 1B Instruct   |
+                      |   (60m RAM caching, Temp: 0.3)   |
                       +----------------------------------+
 ```
 
 ---
 
-## 🛠️ Technology Stack & Dependencies
+## 🛠️ Technology Stack & Upgrade Specifications
 
-- **Framework**: Django 5.x + Django REST Framework
-- **Orchestration**: LangGraph (`StateGraph`, `CompiledGraph`)
-- **Primary LLM**: Ollama GGUF (`Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0`)
-- **Secondary Fallback LLM**: Ollama GGUF (`Qwen2.5-1B-Instruct-Q8_0-GGUF:Q8_0`)
-- **Vector Database**: ChromaDB (Local Persistent Storage)
-- **Re-ranking Model**: HuggingFace DistilBERT (`distilbert-base-uncased`)
-- **Database**: SQLite (Development / Production DB)
-
----
-
-## 📁 Backend Directory & Directory Structure
-
-```text
-back_end/
-├── api/                        # General API utilities & health endpoints
-├── apps/
-│   ├── ai/                     # LLM & Embedding services
-│   │   ├── distilbert_service.py # 2-Stage DistilBERT contextual re-ranking
-│   │   ├── llm_router.py       # LLM selection & automatic fallback router
-│   │   ├── ollama_service.py   # Ollama API client & output filter
-│   │   └── gpu_manager.py      # Memory & device execution manager
-│   ├── documents/              # File ingestion, OCR, and text extraction
-│   │   ├── models.py           # Document model
-│   │   ├── services.py         # PDF / DOCX / TXT text extraction service
-│   │   └── views.py            # POST /api/documents/upload/
-│   ├── health/                 # GPU, Ollama, VectorStore health diagnostics
-│   ├── vectorstore/            # ChromaDB interface
-│   │   ├── chroma_service.py   # ChromaDB collection initialization
-│   │   ├── embeddings.py       # SentenceTransformers embedding generation
-│   │   └── retrieval.py        # Two-stage vector retrieval pipeline
-│   ├── workflows/              # LangGraph multi-agent core
-│   │   ├── agents/
-│   │   │   ├── decomposer_agent.py          # 1. Structural Section Decomposer
-│   │   │   ├── retrieval_agent.py           # 2. Vector Retrieval Agent
-│   │   │   ├── simplifier_agent.py          # 3. Layman Simplifier Agent
-│   │   │   ├── texting_agent.py             # 4. Executive Summary Drafter Agent
-│   │   │   ├── validation_agent.py          # 5. Fact Verification Agent
-│   │   │   └── hallucination_audit_agent.py # 6. Real-time NLI Hallucination Auditor
-│   │   ├── supervisors/
-│   │   │   ├── financial_supervisor.py      # Master Orchestrator Supervisor
-│   │   │   └── communication_supervisor.py  # Communication Orchestrator Supervisor
-│   │   ├── graph.py            # LangGraph StateGraph compilation
-│   │   ├── reducers.py         # State append & merge reducers
-│   │   └── state.py            # WorkflowState & Shared Memory Pydantic Models
-│   └── workflows_api/          # REST API Controllers & Background Tasks
-│       ├── models.py           # Workflow, DocumentInsight, GeneratedDraft models
-│       ├── serializers.py      # DRF Serializers
-│       ├── tasks.py            # Background thread workflow execution
-│       ├── urls.py             # URL route definitions
-│       └── views.py            # API View classes
-├── config/                     # Django settings, ASGI/WSGI, Celery config
-│   ├── settings.py             # Global settings & AI thresholds
-│   └── urls.py                 # Master URL routing
-├── manage.py                   # Django management script
-└── requirements.txt            # Python dependencies
-```
+- **Framework**: Django 5.x + Django REST Framework (`StreamingHttpResponse`)
+- **Multi-Agent Orchestration**: LangGraph (`StateGraph`, `CompiledGraph`)
+- **LLM Engine**: Ollama GGUF (`hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0`)
+- **Vector Database**: ChromaDB (Persistent local vector database with cosine distance space)
+- **Document Extractors**: `pymupdf` (PyMuPDF), `pypdf`, `pdfplumber`, `python-docx`, `pandas`
+- **Relational Storage**: SQLite3 (`UserProfile`, `IngestedDocument`, `AgentExecutionLog`)
 
 ---
 
-## 🧠 5-Agent Anti-Hallucination & Verification Framework
+## 🧠 LangGraph 8-Agent StateGraph Workflow
 
-All 5 agents operate on a **unified shared memory state** (`WorkflowState`), sharing 4 structural document sections and canonical ground-truth facts:
+All 8 logical agents operate on a unified Pydantic memory state (`AgentGraphState`) with strict tenant boundary safety and anti-hallucination validation:
 
-### 1. 📑 `DocumentDecomposerAgent` (`apps/workflows/agents/decomposer_agent.py`)
-- **Role**: Partitions any document into 4 structural sections (`title_header`, `core_details`, `key_topics`, `action_items`).
-- **Fact Extraction**: Dynamically extracts universal document facts (`document_title`, `primary_entity_or_author`, `document_category`, `contact_or_location`, `primary_skills_or_domain`, `key_highlights`, `action_items`).
+### 1. 📥 `IngestionAgent` (Agent 1)
+- **Role**: Normalizes user input queries, initializes pipeline execution state, and validates `user_id` tenant context.
 
-### 2. 📚 `VectorKnowledgeRetrievalAgent` (`apps/workflows/agents/retrieval_agent.py`)
-- **Role**: Performs 2-stage retrieval.
-- **Stage 1**: Fetches top candidates from ChromaDB.
-- **Stage 2**: Applies DistilBERT cross-encoder scoring to filter out irrelevant chunks.
+### 2. 📑 `DecompositionAgent` (Agent 2)
+- **Role**: Decomposes complex user queries into 3-5 atomic subtasks and document retrieval targets.
 
-### 3. 📝 `LaymanSimplifierAgent` (`apps/workflows/agents/simplifier_agent.py`)
-- **Role**: Converts complex technical/general documents into a 3-5 bullet point plain-English summary.
-- **Constraint**: Strict context grounding to avoid inventing false statements or monetary figures.
+### 3. 📚 `DomainContextRAGAgent` (Agent 3)
+- **Role**: Queries ChromaDB vector database using hybrid semantic vector search + keyword fallback. Returns grounded document context snippets.
 
-### 4. ✍️ `ExecutiveSummaryDrafterAgent` (`apps/workflows/agents/texting_agent.py`)
-- **Role**: Synthesizes a structured **Executive Summary & Action Plan Draft** based on extracted document facts.
+### 4. 🛡️ `RiskConstraintAgent` (Agent 4)
+- **Role**: Identifies technical, operational, edge-case, and architectural security constraints.
 
-### 5. ✅ `FactVerificationAgent` (`apps/workflows/agents/validation_agent.py`)
-- **Role**: Validates that generated executive summary drafts correctly state primary author/entity names, document titles, and factual details.
-- **Retry Mechanism**: Rejects invalid drafts for regeneration up to `MAX_DRAFT_RETRIES`.
+### 5. 🏛️ `SynthesisPlannerAgent` (Agent 5)
+- **Role**: Synthesizes subtasks, RAG evidence, and risk analysis into a master solution plan. Dynamically incorporates evaluator feedback on retries.
 
-### 6. 🛡️ `HallucinationAuditAgent` (`apps/workflows/agents/hallucination_audit_agent.py`)
-- **Role**: Real-time NLI cross-verification guardrail agent that audits LLM drafts and Chatbot answers against ground-truth facts prior to returning responses to the user.
+### 6. ⚡ `PrimaryLLMSolverAgent` (Agent 6)
+- **Role**: Solves the master plan independently using Ollama Llama 3.2 1B model, producing **Solution A**.
+
+### 7. 🔥 `SecondaryLLMSolverAgent` (Agent 7)
+- **Role**: Solves the master plan independently using Llama 3.2 1B model, producing **Solution B** for dual-path validation.
+
+### 8. ✅ `EvaluatorJudgeAgent` (Agent 8)
+- **Role**: Audits Solution A & Solution B using structured Pydantic `AntiHallucinationAudit`. Enforces anti-hallucination checks and loops back to Agent 1 if critique fails.
 
 ---
 
-## ⚡ REST API Endpoints & Request/Response Contracts
+## ⚡ Key Upgrades & Technical Enhancements
+
+### 1. 🎙️ Real-Time Word-by-Word Streaming Chatbot (`POST /api/chat/`)
+- Returns a token-by-token `StreamingHttpResponse` (`text/plain; charset=utf-8`).
+- Uses `ollama.chat(stream=True)` to stream responses instantly without buffering full paragraphs.
+- Configured with strict J.A.R.V.I.S. persona ("Hello, Sir. How may I assist you today?").
+
+### 2. 📁 Hybrid Vector Search & Bulletproof Document Ingestion
+- Unified user context resolution between file upload and chatbot retrieval via `UserService.get_or_create_user(email=email)`.
+- 3-tier hybrid retrieval in `ChromaVectorStoreService.search`:
+  1. Strict `user_id` vector search.
+  2. Fallback to all collection documents if tenant query returns 0 hits.
+  3. String keyword search fallback for proper nouns/names (e.g. `"suraj"`).
+
+### 3. 📊 Agent Work Progress Percentage UI
+- Real-time animated progress bars and percentage counters (`0%` → `45%` → `85%` → `100%`) for each agent node in the frontend `NeuralAgentNetwork`.
+- Includes glowing animated loading fill tracks and live inspector modals.
+
+### 4. 🧹 Complete Database Reset Script (`reset_db.py`)
+- Python script to purge SQLite records (`IngestedDocument`, `AgentExecutionLog`) and recreate a clean ChromaDB collection (`user_knowledge_base`, 0 indexed chunks).
+
+---
+
+## ⚡ REST API Endpoints
 
 ### 1. Health Check
 - **`GET /api/health/`**
@@ -135,72 +111,38 @@ All 5 agents operate on a **unified shared memory state** (`WorkflowState`), sha
   ```json
   {
     "status": "healthy",
-    "ollama": { "connected": true, "llama_model": "hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0" },
-    "vectorstore": { "indexed_chunks": 14 }
+    "backend": "Django REST Framework 5.x",
+    "vectorstore": { "collection": "user_knowledge_base", "total_indexed_chunks": 0 },
+    "llm_providers": { "ollama_connected": true, "llm_a_model": "hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0" }
   }
   ```
 
-### 2. Document Upload & Indexing
-- **`POST /api/documents/upload/`** (multipart/form-data)
+### 2. Multi-Agent Pipeline Execution & Document Ingestion
+- **`POST /api/pipeline/run/`** (multipart/form-data or JSON)
 - **Response**:
   ```json
   {
-    "message": "Document uploaded and indexed into vector store",
-    "document": { "id": "uuid", "filename": "sample.pdf", "status": "INDEXED" },
-    "chunk_count": 5
+    "status": "success",
+    "execution_id": "uuid",
+    "indexed_chunks": 1,
+    "iterations_used": 1,
+    "evaluation_passed": true,
+    "solution": "Synthesized solution...",
+    "execution_duration_seconds": 16.74
   }
   ```
 
-### 3. Workflow Analysis Execution
-- **`POST /api/workflows/analyze/`**
-- **Payload**: `{"document_id": "uuid"}`
-- **Response**: `{"message": "Workflow analysis initiated", "workflow_id": "uuid", "status": "PENDING"}`
-
-### 4. Workflow Status & Section Breakdown
-- **`GET /api/workflows/{workflow_id}/`**
-- **Response**: Returns live status, active supervisor, current agent, document sections, and routing decisions.
-
-### 5. Extracted Insights & Facts
-- **`GET /api/workflows/{workflow_id}/insights/`**
-- **Response**: List of extracted key insights with confidence scores and source attribution.
-
-### 6. Executive Summary Draft
-- **`GET /api/workflows/{workflow_id}/draft/`**
-- **Response**: Synthesized draft text, LLM model used, attempt count, and validation status (`PASS`).
-
-### 7. Interactive & General Chatbot
-- **`POST /api/workflows/{workflow_id_or_general}/chat/`**
-- **Payload**: `{"question": "Who is the author and what are the core modules?"}`
-- **Response**:
-  ```json
-  {
-    "workflow_id": "uuid",
-    "question": "Who is the author and what are the core modules?",
-    "answer": "The author of the proposal is Suraj M N. The core modules are...",
-    "llm_model": "hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:Q8_0",
-    "hallucination_verified": true,
-    "sources": ["chk_1", "chk_2"]
-  }
-  ```
+### 3. Interactive Real-Time Streaming AI Chat
+- **`POST /api/chat/`**
+- **Payload**: `{"prompt": "who is suraj", "email": "alex.mercer@innovate.org"}`
+- **Response**: Streamed text response word-by-word in J.A.R.V.I.S. persona.
 
 ---
 
-## ⚡ Performance Optimizations
-
-1. **Instant Greeting Fast-Path**: Simple conversational greetings (`"hi"`, `"hello"`, `"hi buddy"`, `"hey"`) return instant responses (0ms).
-2. **Ollama Acceleration Parameters**:
-   - `num_predict: 384` (Limits max predicted tokens for fast response termination)
-   - `num_ctx: 2048` (4x faster attention calculation on CPU)
-   - `stop: ["<|eot_id|>", "<|im_end|>", "User:", "Question:"]` (Prevents lingering loops)
-   - `keep_alive: "60m"` (Keeps model resident in RAM/VRAM)
-
----
-
-## 🚀 How to Run the Backend
+## 🚀 How to Run the System
 
 ```cmd
-cd back_end
-venv\Scripts\python.exe manage.py migrate
-venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
+run.bat
 ```
-Or launch both frontend and backend using `run.bat`.
+- **Backend REST API**: `http://127.0.0.1:8000/api/health/`
+- **React Frontend**: `http://127.0.0.1:5173/`

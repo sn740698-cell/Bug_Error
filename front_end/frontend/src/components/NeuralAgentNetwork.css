@@ -1,0 +1,458 @@
+/* Neural Agent Network Styles */
+
+.neural-network-container {
+  position: relative;
+  width: 100%;
+  background: radial-gradient(circle at 50% 30%, #0f172a 0%, #020617 100%);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 0 40px rgba(2, 6, 23, 0.8), inset 0 0 30px rgba(56, 189, 248, 0.05);
+  overflow: hidden;
+}
+
+/* Background Grid Overlay */
+.neural-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.neural-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.neural-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.neural-title-icon {
+  font-size: 24px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+.neural-title-group h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.neural-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.neural-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.neural-btn {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2));
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.neural-btn:hover {
+  background: rgba(56, 189, 248, 0.35);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.neural-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* SVG Connection Lines & Beams Layer */
+.neural-svg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.connection-base {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 2;
+  fill: none;
+}
+
+.connection-active {
+  stroke: url(#beamGradient);
+  stroke-width: 3;
+  fill: none;
+  stroke-dasharray: 8 6;
+  animation: laserFlow 1.2s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+}
+
+.connection-completed {
+  stroke: rgba(52, 211, 153, 0.4);
+  stroke-width: 2;
+  fill: none;
+}
+
+.connection-feedback {
+  stroke: url(#feedbackGradient);
+  stroke-width: 3;
+  fill: none;
+  stroke-dasharray: 8 6;
+  animation: feedbackFlow 0.8s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.8));
+}
+
+@keyframes laserFlow {
+  from { stroke-dashoffset: 28; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes feedbackFlow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 28; }
+}
+
+/* Neural Nodes Grid Layout */
+.neural-nodes-layout {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 10px 0;
+}
+
+.neural-layer {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  align-items: center;
+}
+
+/* Individual Node Card */
+.neural-node-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 16px;
+  min-width: 220px;
+  max-width: 280px;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.neural-node-card:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 8px 30px rgba(56, 189, 248, 0.25);
+}
+
+/* Node States */
+.neural-node-card.idle {
+  border-color: rgba(255, 255, 255, 0.1);
+  opacity: 0.75;
+}
+
+.neural-node-card.working {
+  border-color: #38bdf8;
+  background: radial-gradient(circle at center, rgba(56, 189, 248, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.5), inset 0 0 15px rgba(56, 189, 248, 0.3);
+  animation: workingPulse 1.6s infinite alternate ease-in-out;
+  opacity: 1;
+}
+
+.neural-node-card.completed {
+  border-color: rgba(52, 211, 153, 0.6);
+  background: radial-gradient(circle at center, rgba(52, 211, 153, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.25);
+  opacity: 1;
+}
+
+.neural-node-card.retry {
+  border-color: #f43f5e;
+  background: radial-gradient(circle at center, rgba(244, 63, 94, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.4);
+  animation: retryPulse 1.2s infinite ease-in-out;
+  opacity: 1;
+}
+
+@keyframes workingPulse {
+  0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); transform: scale(1); }
+  100% { box-shadow: 0 0 35px rgba(56, 189, 248, 0.7); transform: scale(1.02); }
+}
+
+@keyframes retryPulse {
+  0% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.3); }
+  100% { box-shadow: 0 0 35px rgba(244, 63, 94, 0.8); }
+}
+
+/* Node Header & Details */
+.node-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.node-icon-badge {
+  font-size: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.node-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.node-status-badge.idle {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.node-status-badge.working {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  animation: blink 1s infinite alternate;
+}
+
+.node-status-badge.completed {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.node-status-badge.retry {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+@keyframes blink {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+.node-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.node-number {
+  font-size: 10px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.node-role {
+  font-size: 10px;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.node-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* Agent Work Progress Percentage Loading Bar */
+.agent-progress-box {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agent-progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+}
+
+.progress-title {
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-percent {
+  font-weight: 700;
+  font-family: monospace;
+  color: #94a3b8;
+}
+
+.progress-percent.working {
+  color: #38bdf8;
+}
+
+.progress-percent.completed {
+  color: #34d399;
+}
+
+.agent-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.agent-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.35s ease-in-out;
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.agent-progress-fill.working {
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+  animation: shimmerProgress 1.2s infinite linear;
+}
+
+.agent-progress-fill.completed {
+  background: linear-gradient(90deg, #10b981, #34d399);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+}
+
+@keyframes shimmerProgress {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+.node-preview-box {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  font-size: 10px;
+  color: #cbd5e1;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid #38bdf8;
+}
+
+/* Modal / Inspector for Node Details */
+.node-inspector-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.node-inspector-modal {
+  background: #0f172a;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 550px;
+  padding: 24px;
+  box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
+  color: #f8fafc;
+}
+
+.inspector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.inspector-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.inspector-close-btn:hover {
+  color: #ffffff;
+}
+
+.inspector-section {
+  margin-bottom: 14px;
+}
+
+.inspector-label {
+  font-size: 11px;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.inspector-content {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #e2e8f0;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
